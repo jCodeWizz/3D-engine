@@ -108,7 +108,7 @@ public class Main {
 		RawModel model = loader.loadToVAO(vertices, textureCoords, indices);
 		ModelTexture texture = new ModelTexture(loader.loadTexture("texture"));
 		TexturedModel texturedModel = new TexturedModel(model, texture);
-		Entity e = new Entity(texturedModel, new Vector3f(0, 0, 1), 0, 0, 0, 1);
+		Entity e = new Entity(texturedModel, new Vector3f(0, 0, -2), 0, 0, 0, 1);
 		
 		while(!Display.isCloseRequested()) {
 			cam.move();
