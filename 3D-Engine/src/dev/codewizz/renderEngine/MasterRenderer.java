@@ -14,51 +14,87 @@ import dev.codewizz.entities.Entity;
 import dev.codewizz.entities.Light;
 import dev.codewizz.models.TexturedModel;
 import dev.codewizz.shaders.StaticShader;
+import dev.codewizz.shaders.TerrainShader;
+import dev.codewizz.terrains.Terrain;
 
 public class MasterRenderer {
-
-	public static final float FOV = 70;
-	public static final float NEAR_PLANE = 0.1f;
-	public static final float FAR_PLANE = 1000;
+	
+	private static final float FOV = 70;
+	private static final float NEAR_PLANE = 0.1f;
+	private static final float FAR_PLANE = 1000;
+	
+	private Matrix4f projectionMatrix;
 	
 	private StaticShader shader = new StaticShader();
 	private EntityRenderer renderer;
-
-	private Map<TexturedModel, List<Entity>> entities = new HashMap<>();
-	private Matrix4f projectionMatrix;
-
-	public MasterRenderer() {
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glCullFace(GL11.GL_BACK);
+	
+	private TerrainRenderer terrainRenderer;
+	private TerrainShader terrainShader = new TerrainShader();
+	
+	
+	private Map<TexturedModel,List<Entity>> entities = new HashMap<TexturedModel,List<Entity>>();
+	private List<Terrain> terrains = new ArrayList<Terrain>();
+	
+	public MasterRenderer(){
+		enableCulling();
 		createProjectionMatrix();
-		renderer  = new EntityRenderer(shader, projectionMatrix);
+		renderer = new EntityRenderer(shader,projectionMatrix);
+		terrainRenderer = new TerrainRenderer(terrainShader,projectionMatrix);
 	}
 	
-	public void render(Light sun, Camera cam) {
+	public static void enableCulling() {
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glCullFace(GL11.GL_BACK);
+	}
+	
+	public static void disableCulling() {
+		GL11.glDisable(GL11.GL_CULL_FACE);
+		GL11.glCullFace(GL11.GL_BACK);
+	}
+	
+	public void render(Light sun,Camera camera){
 		prepare();
 		shader.start();
 		shader.loadLight(sun);
-		shader.loadViewMatrix(cam);
-
+		shader.loadViewMatrix(camera);
 		renderer.render(entities);
-
 		shader.stop();
+		terrainShader.start();
+		terrainShader.loadLight(sun);
+		terrainShader.loadViewMatrix(camera);
+		terrainRenderer.render(terrains);
+		terrainShader.stop();
+		terrains.clear();
 		entities.clear();
-
 	}
-
-	public void processEntity(Entity e) {
-		TexturedModel model = e.getModel();
-		List<Entity> batch = entities.get(model);
-		if (batch != null) {
-			batch.add(e);
-		} else {
-			List<Entity> newBatch = new ArrayList<>();
-			newBatch.add(e);
-			entities.put(model, newBatch);
+	
+	public void processTerrain(Terrain terrain){
+		terrains.add(terrain);
+	}
+	
+	public void processEntity(Entity entity){
+		TexturedModel entityModel = entity.getModel();
+		List<Entity> batch = entities.get(entityModel);
+		if(batch!=null){
+			batch.add(entity);
+		}else{
+			List<Entity> newBatch = new ArrayList<Entity>();
+			newBatch.add(entity);
+			entities.put(entityModel, newBatch);		
 		}
 	}
-
+	
+	public void cleanUp(){
+		shader.cleanUp();
+		terrainShader.cleanUp();
+	}
+	
+	public void prepare() {
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+		GL11.glClearColor(0.49f, 89f, 0.98f, 1);
+	}
+	
 	private void createProjectionMatrix() {
 		float aspectRatio = (float) Display.getWidth() / (float) Display.getHeight();
 		float y_scale = (float) ((1f / Math.tan(Math.toRadians(FOV / 2f))) * aspectRatio);
@@ -73,14 +109,6 @@ public class MasterRenderer {
 		projectionMatrix.m32 = -((2 * NEAR_PLANE * FAR_PLANE) / frustum_length);
 		projectionMatrix.m33 = 0;
 	}
+	
 
-	public void cleanup() {
-		shader.cleanup();
-	}
-
-	public void prepare() {
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glClearColor(0.1f, 0.1f, 0.1f, 1);
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-	}
 }
