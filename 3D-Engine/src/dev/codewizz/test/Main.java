@@ -11,8 +11,7 @@ import dev.codewizz.models.RawModel;
 import dev.codewizz.models.TexturedModel;
 import dev.codewizz.renderEngine.DisplayManager;
 import dev.codewizz.renderEngine.Loader;
-import dev.codewizz.renderEngine.Renderer;
-import dev.codewizz.shaders.StaticShader;
+import dev.codewizz.renderEngine.MasterRenderer;
 import dev.codewizz.textures.ModelTexture;
 
 public class Main {
@@ -22,10 +21,8 @@ public class Main {
 		DisplayManager.create();
 		
 		Loader loader = new Loader();
-		StaticShader shader = new StaticShader();
-		Renderer r = new Renderer(shader);
 		Camera cam = new Camera();
-		
+		MasterRenderer renderer = new MasterRenderer();
 		
 		RawModel model = OBJLoader.loadObjModel("dragon", loader);
 		ModelTexture texture = new ModelTexture(loader.loadTexture("dragonTexture"));
@@ -40,16 +37,14 @@ public class Main {
 		while(!Display.isCloseRequested()) {
 			e.increaseRotation(0, 1, 0);
 			cam.move();
-			r.prepare();
-			shader.start();
-			shader.loadLight(light);
-			shader.loadViewMatrix(cam);
-			r.render(e, shader);
-			shader.stop();
+			
+			renderer.processEntity(e);
+			
+			renderer.render(light, cam);
 			DisplayManager.update();
 		}
 		
-		shader.cleanup();
+		renderer.cleanup();
 		loader.cleanup();
 		DisplayManager.close();
 	}
