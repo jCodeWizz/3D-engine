@@ -7,7 +7,7 @@ public class Camera {
 
 	private Vector3f position = new Vector3f(0, 0, 0);
 	private float pitch, yaw, roll;
-	private float speed = 0.02f;
+	private float speed = 0.2f;
 	
 	public Camera() { }
 	
@@ -25,10 +25,25 @@ public class Camera {
 			position.z+=speed;
 		}
 		
+		if(Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
+			yaw-=2;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
+			yaw+=2;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_UP)) {
+			pitch-=2;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
+			pitch+=2;
+		}
 		
-		
-		
-		
+		if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+			position.y-=speed;
+		}
+		if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+			position.y+=speed;
+		}
 	}
 	
 	public Vector3f getPosition() {

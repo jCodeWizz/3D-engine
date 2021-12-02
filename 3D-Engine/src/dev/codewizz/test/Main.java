@@ -5,6 +5,8 @@ import org.lwjgl.util.vector.Vector3f;
 
 import dev.codewizz.entities.Camera;
 import dev.codewizz.entities.Entity;
+import dev.codewizz.entities.Light;
+import dev.codewizz.models.OBJLoader;
 import dev.codewizz.models.RawModel;
 import dev.codewizz.models.TexturedModel;
 import dev.codewizz.renderEngine.DisplayManager;
@@ -25,95 +27,22 @@ public class Main {
 		Camera cam = new Camera();
 		
 		
-		float[] vertices = {			
-				-0.5f,0.5f,-0.5f,	
-				-0.5f,-0.5f,-0.5f,	
-				0.5f,-0.5f,-0.5f,	
-				0.5f,0.5f,-0.5f,		
-				
-				-0.5f,0.5f,0.5f,	
-				-0.5f,-0.5f,0.5f,	
-				0.5f,-0.5f,0.5f,	
-				0.5f,0.5f,0.5f,
-				
-				0.5f,0.5f,-0.5f,	
-				0.5f,-0.5f,-0.5f,	
-				0.5f,-0.5f,0.5f,	
-				0.5f,0.5f,0.5f,
-				
-				-0.5f,0.5f,-0.5f,	
-				-0.5f,-0.5f,-0.5f,	
-				-0.5f,-0.5f,0.5f,	
-				-0.5f,0.5f,0.5f,
-				
-				-0.5f,0.5f,0.5f,
-				-0.5f,0.5f,-0.5f,
-				0.5f,0.5f,-0.5f,
-				0.5f,0.5f,0.5f,
-				
-				-0.5f,-0.5f,0.5f,
-				-0.5f,-0.5f,-0.5f,
-				0.5f,-0.5f,-0.5f,
-				0.5f,-0.5f,0.5f
-				
-		};
-		
-		float[] textureCoords = {
-				
-				0,0,
-				0,1,
-				1,1,
-				1,0,			
-				0,0,
-				0,1,
-				1,1,
-				1,0,			
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0
-
-				
-		};
-		
-		int[] indices = {
-				0,1,3,	
-				3,1,2,	
-				4,5,7,
-				7,5,6,
-				8,9,11,
-				11,9,10,
-				12,13,15,
-				15,13,14,	
-				16,17,19,
-				19,17,18,
-				20,21,23,
-				23,21,22
-
-		};
-		
-		
-		RawModel model = loader.loadToVAO(vertices, textureCoords, indices);
-		ModelTexture texture = new ModelTexture(loader.loadTexture("texture"));
+		RawModel model = OBJLoader.loadObjModel("dragon", loader);
+		ModelTexture texture = new ModelTexture(loader.loadTexture("dragonTexture"));
 		TexturedModel texturedModel = new TexturedModel(model, texture);
-		Entity e = new Entity(texturedModel, new Vector3f(0, 0, -2), 0, 0, 0, 1);
+		Entity e = new Entity(texturedModel, new Vector3f(0, -5, -25), 0, 0, 0, 1);
+		
+		texture.setShineDamper(10);
+		texture.setReflectivity(1);
+		
+		Light light = new Light(new Vector3f(0, 0, -20), new Vector3f(1, 1, 1));
 		
 		while(!Display.isCloseRequested()) {
+			e.increaseRotation(0, 1, 0);
 			cam.move();
 			r.prepare();
 			shader.start();
+			shader.loadLight(light);
 			shader.loadViewMatrix(cam);
 			r.render(e, shader);
 			shader.stop();
