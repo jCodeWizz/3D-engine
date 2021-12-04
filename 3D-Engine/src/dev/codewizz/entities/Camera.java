@@ -42,10 +42,10 @@ public class Camera {
 		if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
 			pitch+=rspeed;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
+		if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
 			yaw+=rspeed;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
+		if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
 			yaw-=rspeed;
 		}
 
