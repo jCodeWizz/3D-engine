@@ -14,7 +14,11 @@ import org.lwjgl.opengl.GL30;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
+import dev.codewizz.models.ModelData;
+import dev.codewizz.models.OBJFileLoader;
 import dev.codewizz.models.RawModel;
+import dev.codewizz.models.TexturedModel;
+import dev.codewizz.textures.ModelTexture;
 
 public class Loader {
 	
@@ -44,6 +48,15 @@ public class Loader {
 		}
 		textures.add(texture.getTextureID());
 		return texture.getTextureID();
+	}
+	
+	public TexturedModel loadTexturedModel(String file, Loader loader) {
+		ModelData data = OBJFileLoader.loadOBJ(file);
+		RawModel model = loader.loadToVAO(data.getVertices(), data.getTextureCoords(), data.getNormals(), data.getIndices());
+		
+		TexturedModel treeModel = new TexturedModel(model,new ModelTexture(loader.loadTexture(file)));
+		return treeModel;
+	
 	}
 	
 	public void cleanUp(){
